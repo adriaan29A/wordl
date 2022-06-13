@@ -1,26 +1,37 @@
+""" 
+Wordl
+
+Helps you cheat playing Wordle
+
+"""
 import math
 
 N = 5
 base = 3
 
 
-def generate_pattern(source, target):
+def generate_pattern(src, trgt):
+    """ 
+    Given two words like 'women' 'roman' (src, trgt), return the corresponding Wordle "hint" 
+    encoded as a list of integers each taking on the values GREEN (1), YELLOW (2), GREY (0); 
+    for each character in the word.  
+    
+    """
+    pattern = [0] * N
 
-    mask = ['0','0','0','0','0']
-
-    for i in range(5):
-        if target[i] != source[i]:
-            idxs = [j for j, c in enumerate(source) if c == target[i]]
-            if len(idxs) != 0:
-                mask[i] = '2'
+    for i in range(N):
+        if trgt[i] != src[i]:
+            hits = [j for j, c in enumerate(src) if c == trgt[i]]
+            if len(hits) != 0:
+                pattern[i] = 2
         else:
-            mask[i] = '1'
+            pattern[i] = 1
 
-    st = ''
-    for j in range(5):
-        st += mask[j]
+    res = ''
+    for j in range(N):
+        res += str(pattern[j])
 
-    return st
+    return res
 
 
 def verify_pattern(pattern, target, source):
@@ -55,7 +66,6 @@ def verify_pattern(pattern, target, source):
                     b = False; break
 
     return b
-
 
 
 def filter_words(pattern, words, source):
@@ -172,7 +182,7 @@ for line in lines:
     words.append(t)
 
 #iterate_and_do(words)
-iad(words)
+#iad(words)
 
 
 print ('Welcome to Wordl! You have 10 guesses, \'q\' to quit')
