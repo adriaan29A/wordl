@@ -5,78 +5,83 @@ Helps you cheat playing Wordle
 
 """
 import math
+from enum import IntEnum
 
 N = 5
 base = 3
 
+class Hint(IntEnum):
+    miss    = 0
+    hit     = 1
+    reveal  = 2
+
 
 def generate_pattern(src, trgt):
     """ 
-    Given two words like 'women' 'roman' (src, trgt), return the corresponding Wordle "hint" 
-    encoded as a list of integers each taking on the values GREEN (1), YELLOW (2), GREY (0); 
+    Given two words like 'women', 'roman' (src, trgt), return the corresponding Wordle "hint" 
+    encoded as a list of integers each taking on one of three enum values - hit, miss or reveal -
     for each character in the word.  
     
     """
-    pattern = [0] * N
+    pattern = [Hint.miss] * N
 
     for i in range(N):
         if trgt[i] != src[i]:
             hits = [j for j, c in enumerate(src) if c == trgt[i]]
             if len(hits) != 0:
-                pattern[i] = 2
+                pattern[i] = Hint.reveal
         else:
-            pattern[i] = 1
+            pattern[i] = Hint.hit
+
 
     res = ''
     for j in range(N):
-        res += str(pattern[j])
+            res += str(pattern[j].value)
 
     return res
+
 
 
 def verify_pattern(pattern, target, source):
     """ 
     Given a pattern like '00120', a src like 'women' and a target like 'roman'
     returns True if the target string matches the pattern for the src string
-    """
 
+    """
     n= len(pattern)
     b = True
 
     for i in range(n):
 
-        if pattern[i] == '0':
-            if source[i] == target[i]:
-                b = False; break
-            else:
-                idx = [j for j, c in enumerate(source) if target[i] == c]
-                if idx:
+        match int(pattern[i]):
+            case Hint.miss:
+                if source[i] == target[i]:
                     b = False; break
-
-        elif pattern[i] == '1':
-            if source[i] != target[i]:
-                b = False; break
- 
-        elif pattern[i] == '2':
-            if source[i] == target[i]:
-                b = False; break
-            else:
-                idx = [j for j, c in enumerate(source) if target[i] == c]
-                if not idx:
+                else:
+                    idx = [j for j, c in enumerate(source) if target[i] == c]
+                    if idx:
+                        b = False; break
+            case Hint.hit:
+                if source[i] != target[i]:
                     b = False; break
+            case Hint.reveal:
+                if source[i] == target[i]:
+                    b = False; break
+                else:
+                    idx = [j for j, c in enumerate(source) if target[i] == c]
+                    if not idx:
+                        b = False; break              
 
     return b
 
-
-def filter_words(pattern, words, source):
+def filter_words(pattern, words, src):
 
     matches = []
     for target in words:
-        if verify_pattern(pattern, source, target[0]):
+        if verify_pattern(pattern, src, target[0]):
             matches.append(target)
 
     return matches
-
 
 def add_one_and_mod(digits, i):
     digits[i] = (digits[i] + 1) % base
@@ -164,7 +169,6 @@ def generate_expecteds(words):
     print('{0:s} {1:2.5f}'.format(words[i][0], s))
     
 
-
 ####################################################
 
 
@@ -183,7 +187,9 @@ for line in lines:
 
 #iterate_and_do(words)
 #iad(words)
+#verify_pattern1('20221', 'women', 'roman')
 
+generate_expecteds(words)
 
 print ('Welcome to Wordl! You have 10 guesses, \'q\' to quit')
 
