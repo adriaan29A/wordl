@@ -6,7 +6,6 @@ Helps you cheat playing Wordle
 """
 import math
 from enum import IntEnum
-import scratch
 
 N = 5
 base = 3
@@ -92,19 +91,20 @@ def filter_words(pattern, words, src):
 
 
 class Tools:
-    @classmethod
-    def increment_and_mod(cls, digits, i):
+
+    @staticmethod
+    def increment_and_mod(digits, i):
         digits[i] = (digits[i] + 1) % base
         return digits[i] == 0
 
-    @classmethod
-    def increment(cls, digits):
+    @staticmethod
+    def increment(digits):
         i = 0
-        while i < N and cls.increment_and_mod(digits, i):
+        while i < N and Tools.increment_and_mod(digits, i):
             i += 1
  
-    @classmethod
-    def digits_to_string(cls, digits):
+    @staticmethod
+    def digits_to_string(digits):
         n = len(digits)
         s = ''
         for i in range(n):
@@ -112,12 +112,12 @@ class Tools:
     
         return s
 
-    @classmethod
-    def iterate_and_do(cls, words, sourceterm):
+    @staticmethod
+    def iterate_and_do(words, sourceterm):
     
         digits = [0] * N
         for i in range(base**N):
-            pattern = cls.digits_to_string(digits)
+            pattern = Tools.digits_to_string(digits)
             matches = filter_words(pattern, words, sourceterm)
             if (matches): 
                 count = len(matches)
@@ -130,7 +130,7 @@ class Tools:
             else:
                 print(pattern + " not matched!")
 
-            cls.increment(digits)
+            Tools.increment(digits)
 
 
 def generate_expecteds(words):
