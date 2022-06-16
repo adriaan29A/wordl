@@ -6,10 +6,11 @@ class Foo:
 
     def frooble(x):
         Foo.fribble(x)
+        
 
 
 Foo.frooble(10)
-
+e.t.c.
 """
 
 class MyClass:
