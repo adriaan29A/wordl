@@ -9,9 +9,10 @@ from enum import IntEnum
 
 N = 5
 BASE = 3
-
 WORD = 0
 EXPECTED = 1
+WORD_DATA_FILE = "words_bits.txt"
+
 
 class Hint(IntEnum):
     miss    = 0
@@ -88,7 +89,7 @@ def filter_words(pattern, words, src):
     return matches
 
 """
-This is inelegant but I don't want to break it into a separate module. I guess.
+This is inelegant 
 """
 class Tools:
 
@@ -136,32 +137,39 @@ class Tools:
 
             Tools.increment(pattern)
 
-
-def generate_expecteds(words):
+def read_word_data_file():
     """ 
-    Pre-compute expected values. 
-    Todo: Use word frequency lists, columnized output, better UI, performance
-    
-    This will prove useful in the future maybe.
-    sorted_patterns = {key: val for key, val in sorted(raw_patterns.items(), 
-        key = lambda ele: ele[1], reverse=True)}
-    """
-    n = len(words)
-    expected = {}
 
+    """
+    words = []
+    with open(WORD_DATA_FILE) as f:
+         lines = f.read().splitlines()
+         f.close
+
+    for line in lines:
+        s = line.split(' ')
+        t = tuple(((s[WORD], s[EXPECTED])))
+        words.append(t)
+
+    return words
+
+def generate_expecteds():
+    """ 
+    Pre-compute expected values using Shannon's rule = sum(p(i) * log(1/p(i)))
+    """
+    words = read_word_data_file()
+    n = len(words)
     for i in range(n):
         
         patterns = {}
         for j in range(n):
 
             p = generate_pattern(words[i][WORD], words[j][WORD])
-
             if (p in patterns):
                 patterns[p] += 1
             else:
                 patterns[p] = 1
 
- 
         nk = len(patterns.keys())
         print ("# keys=", nk)
 
@@ -173,38 +181,30 @@ def generate_expecteds(words):
             bits = math.log2(1/probability)
             s += probability*bits
     
-        expected[words[i]] = s
-        
+        # This might prove useful in the future
+        # sorted_patterns = {key: val for key, val in sorted(raw_patterns.items(), 
+        # key = lambda ele: ele[1], reverse=True)}
+
         print('{0:s} {1:n} {2:s} {3:2.5f}'.format(words[i][WORD], count, p, s))
-        print('word = {0:s}'.format(words[i][WORD]))
-        print( ('E(I) = {0:2.6f} bits'.format(s)) )
+        #print('word = {0:s}'.format(words[i][WORD]))
+        #print( ('E(I) = {0:2.6f} bits'.format(s)) )
 
     print('{0:s} {1:2.5f}'.format(words[i][0], s))
     
 #-------------------------------------------------------------------------------
 
 def main():
+    """ 
 
-
-    print ('Welcome to Wordl! You have 10 guesses, \'q\' to quit')
-
-    words = []
-    matches = []
-
-    with open('words_bits.txt') as f:
-         lines = f.read().splitlines()
-         f.close
-
-    # Twiddle this depending on info in file
-    for line in lines:
-        s = line.split(' ')
-        t = tuple(((s[WORD], s[EXPECTED])))
-        words.append(t)
+    """
+    print ('Welcome to Wordl! You have 6 guesses, \'q\' to quit')
 
     # User starts out with a guess on Wordle, followed by
     # inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
-    for i in range(10):
+    matches = []
+    words = read_word_data_file()
+    for i in range(6):
 
         line = input("Enter result: ")
         args = line.split(' ')
@@ -213,15 +213,15 @@ def main():
 
         if not i: 
             matches = words
-
         matches = filter_words(args[1], matches, args[0])
+
         count = len(matches)
-
-
         for i in range(count):
             print(matches[i][WORD], end=" ")
         
         print()
 
 
+#generate_expecteds()
 main()
+
