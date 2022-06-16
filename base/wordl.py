@@ -145,7 +145,6 @@ def generate_expecteds(words):
     This will prove useful in the future maybe.
     sorted_patterns = {key: val for key, val in sorted(raw_patterns.items(), 
         key = lambda ele: ele[1], reverse=True)}
-
     """
     n = len(words)
     expected = {}
@@ -153,7 +152,6 @@ def generate_expecteds(words):
     for i in range(n):
         
         patterns = {}
-
         for j in range(n):
 
             p = generate_pattern(words[i][WORD], words[j][WORD])
@@ -183,44 +181,47 @@ def generate_expecteds(words):
 
     print('{0:s} {1:2.5f}'.format(words[i][0], s))
     
+#-------------------------------------------------------------------------------
 
-################################################################################
-
-
-print ('Welcome to Wordl! You have 10 guesses, \'q\' to quit')
-
-words = []
-matches = []
-
-with open('words_bits.txt') as f:
-     lines = f.read().splitlines()
-     f.close
-
-# Twiddle this depending on info in file
-for line in lines:
-    s = line.split(' ')
-    t = tuple(((s[WORD], s[EXPECTED])))
-    words.append(t)
+def main():
 
 
-# User starts out with a guess on Wordle, followed by
-# inputting the result to the program in the form of
-# <word> <pattern> like "tacos" and pattern like 00211
-for i in range(10):
+    print ('Welcome to Wordl! You have 10 guesses, \'q\' to quit')
 
-    line = input("Enter result: ")
-    args = line.split(' ')
-    if args[0][0] == 'q':
-        break
+    words = []
+    matches = []
 
-    if not i: 
-        matches = words
+    with open('words_bits.txt') as f:
+         lines = f.read().splitlines()
+         f.close
 
-    matches = filter_words(args[1], matches, args[0])
-    count = len(matches)
+    # Twiddle this depending on info in file
+    for line in lines:
+        s = line.split(' ')
+        t = tuple(((s[WORD], s[EXPECTED])))
+        words.append(t)
+
+    # User starts out with a guess on Wordle, followed by
+    # inputting the result to the program in the form of
+    # <word> <pattern> like "tacos" and pattern like 00211
+    for i in range(10):
+
+        line = input("Enter result: ")
+        args = line.split(' ')
+        if args[0][0] == 'q':
+            break
+
+        if not i: 
+            matches = words
+
+        matches = filter_words(args[1], matches, args[0])
+        count = len(matches)
 
 
-    for i in range(count):
-        print(matches[i][WORD], end=" ")
+        for i in range(count):
+            print(matches[i][WORD], end=" ")
         
-    print()
+        print()
+
+
+main()
