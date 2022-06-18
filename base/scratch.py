@@ -1,39 +1,32 @@
-"""
-class Foo:
-
-    def fribble(x):
-        print(x)
-
-    def frooble(x):
-        Foo.fribble(x)
-        
+N = 5
+BASE = 3
 
 
-Foo.frooble(10)
-e.t.c.
-"""
+def myfunc(foo):
+    print ("hello world")
 
-class MyClass:
+class Odometer:
 
-    """A simple example class"""
-    i = 12345
+    def __init__(self, digits, base):
+        self.digits = digits
+        self. n = len(digits)
+        self.base = base
 
-    @staticmethod
-    def rc():
-        return 'goodbye world'
+    def increment_and_carry(self, i):
+        self.digits[i] = (self.digits[i] + 1) % self.base
+        return self.digits[i] == 0
 
-    @staticmethod
-    def f(bar):
-        print(bar)
-        print("hello world")
-        print(MyClass.rc())
-
+    def increment(self):
+        i = 0
+        while self.increment_and_carry(i):
+            i+=1
 
 
-c = MyClass()
+num = [0]*N; base = BASE
+od = Odometer(num, BASE)
+for i in range(base**N):
+    od.increment()
+    print(od.digits)
 
-mf = MyClass.f("bar")
-print(mf)
 
-mf = c.f('bar')
-print(mf)
+

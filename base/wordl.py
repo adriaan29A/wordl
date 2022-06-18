@@ -89,7 +89,8 @@ def filter_words(pattern, words, src):
     return matches
 
 """
-This is inelegant 
+Inelegant 
+
 """
 class Tools:
 
@@ -137,7 +138,7 @@ class Tools:
 
             Tools.increment(pattern)
 
-def read_word_data_file():
+def read_word_data():
     """ 
 
     """
@@ -203,7 +204,7 @@ def main():
     # inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
     matches = []
-    words = read_word_data_file()
+    words = read_word_data()
     for i in range(6):
 
         line = input("Enter result: ")

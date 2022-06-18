@@ -1,3 +1,5 @@
+"""
+
 import argparse
 
 
@@ -139,7 +141,6 @@ print (c.imag())
 
 class MyClass:
 
-    """A simple example class"""
     i = 12345
 
     def f(self):
@@ -242,7 +243,6 @@ for user, status in users.copy().items():
     if status == 'inactive':
         print( users[user])
 
-"""""
 
 def example(a, /, b, *, c):
     print(a, b, c)
