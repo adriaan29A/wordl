@@ -55,7 +55,6 @@ def verify_pattern(pattern, target, source):
 
     for i in range(n):
 
-        # casting to int shouldn't be necessary
         match int(pattern[i]):
             case Hint.miss:
                 if source[i] == target[i]:
@@ -85,7 +84,7 @@ def filter_words(pattern, words, src):
     """
     matches = []
     for target in words:
-        if verify_pattern(pattern, src[WORD], target[WORD]):
+        if verify_pattern(pattern, src, target[WORD]):
             matches.append(target)
 
     return matches
@@ -186,7 +185,7 @@ def iterate_and_do():
         pattern = [0] * N
         od = scratch.Odometer(pattern, BASE)
         for i in range(BASE**N):
-            matches = filter_words(pattern, words, word)
+            matches = filter_words(pattern, words, word[WORD])
 
             if (matches): 
                 count = len(matches)
