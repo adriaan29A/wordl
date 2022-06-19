@@ -6,6 +6,7 @@ Helps you cheat playing Wordle
 """
 import math
 from enum import IntEnum
+import scratch
 
 N = 5
 BASE = 3
@@ -54,6 +55,7 @@ def verify_pattern(pattern, target, source):
 
     for i in range(n):
 
+        # casting to int shouldn't be necessary
         match int(pattern[i]):
             case Hint.miss:
                 if source[i] == target[i]:
@@ -83,60 +85,10 @@ def filter_words(pattern, words, src):
     """
     matches = []
     for target in words:
-        if verify_pattern(pattern, src, target[WORD]):
+        if verify_pattern(pattern, src[WORD], target[WORD]):
             matches.append(target)
 
     return matches
-
-"""
-Inelegant 
-
-"""
-class Tools:
-
-    @staticmethod
-    def increment_and_mod(pattern, i):
-        pattern[i] = (pattern[i] + 1) % BASE
-        return pattern[i] == 0
-
-    @staticmethod
-    def increment(pattern):
-        i = 0
-        while i < N and Tools.increment_and_mod(pattern, i):
-            i += 1
- 
-    @staticmethod
-    def pattern_to_string(pattern):
-        n = len(pattern)
-        s = ''
-        for i in range(n):
-            s += str(pattern[i])
-    
-        return s
-
-    @staticmethod
-    # Why this class exists
-    def iterate_and_do(words, sourceterm):
-    
-        pattern = [Hint.miss] * N
-        for i in range(BASE**N):
-
-            pattern_str = Tools.pattern_to_string(pattern)
-            matches = filter_words(pattern_str, words, sourceterm)
-
-            if (matches): 
-                count = len(matches)
-                print(pattern, count)
-
-                if count > 15: count = 15
-                for i in range(count):
-                    print(matches[i], end=" ")
-                print()
-
-            else:
-                print(pattern + " not matched!")
-
-            Tools.increment(pattern)
 
 def read_word_data():
     """ 
@@ -158,7 +110,7 @@ def generate_expecteds():
     """ 
     Pre-compute expected values using Shannon's rule = sum(p(i) * log(1/p(i)))
     """
-    words = read_word_data_file()
+    words = read_word_data()
     n = len(words)
     for i in range(n):
         
@@ -223,6 +175,39 @@ def main():
         print()
 
 
+def iterate_and_do():
+    """
+    
+    """
+    matches = []
+    words = read_word_data()
+    for word in words:
+
+        pattern = [0] * N
+        od = scratch.Odometer(pattern, BASE)
+        for i in range(BASE**N):
+            matches = filter_words(pattern, words, word)
+
+            if (matches): 
+                count = len(matches)
+                print(pattern, count)
+
+                if count > 15: count = 15
+                for i in range(count):
+                    print(matches[i], end=" ")
+                print(); print()
+
+            else:
+                print(pattern, end = " ");  print(" not matched!")
+            od.increment()
+
+
+
+
+
 #generate_expecteds()
 main()
+#iterate_and_do()
+
+
 

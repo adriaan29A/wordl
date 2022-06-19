@@ -20,13 +20,18 @@ class Odometer:
         i = 0
         while self.increment_and_carry(i):
             i+=1
+            if i == self.n: 
+                break
 
 
+"""
 num = [0]*N; base = BASE
 od = Odometer(num, BASE)
-for i in range(base**N):
-    od.increment()
-    print(od.digits)
 
+for i in range(base**N):
+    print("num =", end=' ')
+    print(od.digits)
+    od.increment()
+"""
 
 
