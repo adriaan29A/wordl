@@ -105,6 +105,39 @@ def read_word_data():
 
     return words
 
+
+    
+#-------------------------------------------------------------------------------
+
+def main():
+    """ 
+
+
+    """
+    print ('Welcome to Wordl! You have 6 guesses, \'q\' to quit')
+
+    # User starts out with a guess on Wordle, followed by
+    # inputting the result to the program in the form of
+    # <word> <pattern> like "tacos" and pattern like 00211
+    matches = []
+    words = read_word_data()
+    for i in range(6):
+
+        line = input("Enter result: ")
+        args = line.split(' ')
+        if args[0][0] == 'q':
+            break
+
+        if not i: 
+            matches = words
+        matches = filter_words(args[1], matches, args[0])
+
+        count = len(matches)
+        for i in range(count):
+            print(matches[i][WORD], end=" ")
+        
+        print()
+
 def generate_expecteds():
     """ 
     Pre-compute expected values using Shannon's rule = sum(p(i) * log(1/p(i)))
@@ -133,7 +166,7 @@ def generate_expecteds():
             bits = math.log2(1/probability)
             s += probability*bits
     
-        # This might prove useful in the future
+        # How to sort a list of tuples....
         # sorted_patterns = {key: val for key, val in sorted(raw_patterns.items(), 
         # key = lambda ele: ele[1], reverse=True)}
 
@@ -142,41 +175,12 @@ def generate_expecteds():
         #print( ('E(I) = {0:2.6f} bits'.format(s)) )
 
     print('{0:s} {1:2.5f}'.format(words[i][0], s))
-    
-#-------------------------------------------------------------------------------
-
-def main():
-    """ 
-
-    """
-    print ('Welcome to Wordl! You have 6 guesses, \'q\' to quit')
-
-    # User starts out with a guess on Wordle, followed by
-    # inputting the result to the program in the form of
-    # <word> <pattern> like "tacos" and pattern like 00211
-    matches = []
-    words = read_word_data()
-    for i in range(6):
-
-        line = input("Enter result: ")
-        args = line.split(' ')
-        if args[0][0] == 'q':
-            break
-
-        if not i: 
-            matches = words
-        matches = filter_words(args[1], matches, args[0])
-
-        count = len(matches)
-        for i in range(count):
-            print(matches[i][WORD], end=" ")
-        
-        print()
 
 
 def iterate_and_do():
     """
-    
+    Iterating over all patterns and for each word find all matching words and
+    print them out. Some pattern, word combinations have no have no matches     
     """
     matches = []
     words = read_word_data()
@@ -201,11 +205,8 @@ def iterate_and_do():
             od.increment()
 
 
-
-
-
-#generate_expecteds()
 main()
+#generate_expecteds()
 #iterate_and_do()
 
 
