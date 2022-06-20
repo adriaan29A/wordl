@@ -1,10 +1,3 @@
-N = 5
-BASE = 3
-
-
-def myfunc(foo):
-    print ("hello world")
-
 class Odometer:
 
     def __init__(self, digits, base):
@@ -22,16 +15,5 @@ class Odometer:
             i+=1
             if i == self.n: 
                 break
-
-
-"""
-num = [0]*N; base = BASE
-od = Odometer(num, BASE)
-
-for i in range(base**N):
-    print("num =", end=' ')
-    print(od.digits)
-    od.increment()
-"""
 
 

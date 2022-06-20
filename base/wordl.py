@@ -10,9 +10,14 @@ import scratch
 
 N = 5
 BASE = 3
+
 WORD = 0
 EXPECTED = 1
-WORD_DATA_FILE = "words_bits.txt"
+RANK = 2
+
+WORDLE_DATA_FILE        = "words_bits.txt"
+GOOGLE_20K_DATA_FILE    = '20k.txt'
+DEFAULT_RANK, DEFAULT_EXPECTED  = 0, 0
 
 
 class Hint(IntEnum):
@@ -89,24 +94,47 @@ def filter_words(pattern, words, src):
 
     return matches
 
-def read_word_data():
+def read_word_data(filename):
     """ 
 
     """
     words = []
-    with open(WORD_DATA_FILE) as f:
+    with open(filename) as f:
          lines = f.read().splitlines()
          f.close
 
-    for line in lines:
-        s = line.split(' ')
-        t = tuple(((s[WORD], s[EXPECTED])))
-        words.append(t)
+    if filename == WORDLE_DATA_FILE:
+        for line in lines:
+            s = line.split(' ')
+            t = tuple(((s[WORD], s[EXPECTED])))
+            words.append(t)
+
+    else: # GOOGLE_20K_DATA_FILE
+        rank = 0
+        for word in lines:
+            t = tuple((word, DEFAULT_EXPECTED, rank/(2*10**4)))
+            rank += 1
+            words.append(t)
 
     return words
 
+def generate_rankings():
 
-    
+    t20k5 = []
+
+    t20k = read_word_data(GOOGLE_20K_DATA_FILE)
+    for t in t20k:
+        if len(t[WORD]) == N:
+            t20k5.append(t)
+
+    twordl = read_word_data(WORDLE_DATA_FILE)
+    for t in twordl:
+        result = next((i for i, v in enumerate(t20k5) if v[WORD] == t[WORD]), None)
+        if result != None:
+            t += ((t20k5[result][RANK]),)
+        else:
+            t += (0,)
+        print(t)
 #-------------------------------------------------------------------------------
 
 def main():
@@ -120,7 +148,7 @@ def main():
     # inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
     matches = []
-    words = read_word_data()
+    words = read_word_data(WORDLE_DATA_FILE)
     for i in range(6):
 
         line = input("Enter result: ")
@@ -142,7 +170,7 @@ def generate_expecteds():
     """ 
     Pre-compute expected values using Shannon's rule = sum(p(i) * log(1/p(i)))
     """
-    words = read_word_data()
+    words = read_word_data(WORDLE_DATA_FILE)
     n = len(words)
     for i in range(n):
         
@@ -183,7 +211,7 @@ def iterate_and_do():
     print them out. Some pattern, word combinations have no have no matches     
     """
     matches = []
-    words = read_word_data()
+    words = read_word_data(WORDLE_DATA_FILE)
     for word in words:
 
         pattern = [0] * N
@@ -205,7 +233,8 @@ def iterate_and_do():
             od.increment()
 
 
-main()
+generate_rankings()
+#main()
 #generate_expecteds()
 #iterate_and_do()
 
