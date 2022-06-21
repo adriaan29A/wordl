@@ -118,14 +118,10 @@ def read_word_data(filename):
             words.append(t)
     else: # WORD_EXPECTED_RANK_VALUES 
         for line in lines:
-            t = tuple((line,))
+            t = eval(line)
             words.append(t)
 
     return words
-
-words = read_word_data(WORD_EXPECTED_RANK_VALUES)
-for w in words:
-    print(w)
 
 def generate_rankings():
     """
@@ -162,7 +158,7 @@ def main():
     # inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
     matches = []
-    words = read_word_data(WORDLE_DATA_FILE)
+    words = read_word_data(WORD_EXPECTED_RANK_VALUES)
     for i in range(6):
 
         line = input("Enter result: ")
@@ -175,16 +171,13 @@ def main():
  
         matches = filter_words(args[1], matches, args[0])
         count = len(matches)
+       
+        sorted_matches = list(sorted(matches, 
+             key = lambda ele: ele[RANK], reverse = True)) #reverse=True
 
-        """ 
-        The rankings aren't in the file yet
-        sorted_matches = (v for v in sorted(matches, 
-             key = lambda ele: ele[RANK])) #reverse=True
-        """
-
-        if count > 8: count = 8
+        if count > 10: count = 10
         for j in range(count):
-            print(matches[j][WORD], matches[j][EXPECTED], end=" ")
+            print(sorted_matches[j][WORD], sorted_matches[j][RANK], end=" ")
         
         print()
 
