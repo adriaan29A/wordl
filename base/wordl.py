@@ -4,6 +4,7 @@ Wordl
 Helps you cheat playing Wordle
 
 """
+from curses import keyname
 import math
 from enum import IntEnum
 import scratch
@@ -107,7 +108,7 @@ def read_word_data(filename):
     if filename == WORDLE_DATA_FILE:
         for line in lines:
             s = line.split(' ')
-            t = tuple(((s[WORD], s[EXPECTED])))
+            t = tuple(((s[WORD], float(s[EXPECTED]))))
             words.append(t)
 
     elif filename == GOOGLE_20K_DATA_FILE:
@@ -149,10 +150,13 @@ def generate_rankings():
 
 def main():
     """ 
+    Main:
 
+    Usage: wordl <word> <pattern>
+    eg:    wordl ozone 00122
 
     """
-    print ('Welcome to Wordl! You have 6 guesses, \'q\' to quit')
+    print ('\nWelcome to Wordl! You have 6 guesses, \'q\' to quit')
 
     # User starts out with a guess on Wordle, followed by
     # inputting the result to the program in the form of
@@ -161,7 +165,7 @@ def main():
     words = read_word_data(WORD_EXPECTED_RANK_VALUES)
     for i in range(6):
 
-        line = input("Enter result: ")
+        line = input("\nWordl>: ")
         args = line.split(' ')
         if args[0][0] == 'q':
             break
@@ -171,15 +175,20 @@ def main():
  
         matches = filter_words(args[1], matches, args[0])
         count = len(matches)
-       
-        sorted_matches = list(sorted(matches, 
-             key = lambda ele: ele[RANK], reverse = True)) #reverse=True
+        if count > 15: count = 15
+        ranked_by_entropy = list(sorted(matches, 
+             key = lambda ele: ele[EXPECTED], reverse = True))
 
-        if count > 10: count = 10
+        ranked_by_frequency = list(sorted(matches, 
+             key = lambda ele: ele[RANK], reverse = True))
+
+        print("\nRankings on Entopy and Frequency:\n"); 
         for j in range(count):
-            print(sorted_matches[j][WORD], sorted_matches[j][RANK], end=" ")
-        
-        print()
+            en = ranked_by_entropy[j]
+            fr = ranked_by_frequency[j]
+            print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[RANK]), end=' ')
+            print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[RANK]))
+      
 
 def generate_expecteds():
     """ 
