@@ -15,10 +15,11 @@ WORD = 0
 EXPECTED = 1
 RANK = 2
 
-WORDLE_DATA_FILE        = "words_bits.txt"
-GOOGLE_20K_DATA_FILE    = '20k.txt'
-DEFAULT_RANK, DEFAULT_EXPECTED  = 0, 0
+WORDLE_DATA_FILE                = "words_bits.txt"
+WORD_EXPECTED_RANK_VALUES       = 'word_expected_rank_values.txt'
+GOOGLE_20K_DATA_FILE            = '20k.txt'
 
+DEFAULT_RANK, DEFAULT_EXPECTED  = 0, 0
 
 class Hint(IntEnum):
     miss    = 0
@@ -109,19 +110,32 @@ def read_word_data(filename):
             t = tuple(((s[WORD], s[EXPECTED])))
             words.append(t)
 
-    else: # GOOGLE_20K_DATA_FILE
+    elif filename == GOOGLE_20K_DATA_FILE:
         rank = 0
         for word in lines:
             t = tuple((word, DEFAULT_EXPECTED, rank/(2*10**4)))
             rank += 1
             words.append(t)
+    else: # WORD_EXPECTED_RANK_VALUES 
+        for line in lines:
+            t = tuple((line,))
+            words.append(t)
 
     return words
 
+words = read_word_data(WORD_EXPECTED_RANK_VALUES)
+for w in words:
+    print(w)
+
 def generate_rankings():
+    """
+    Many of the words in Wordle are junk words even if they yield valuable Shannon entropy
+    values. Use the Google 20k ordered word list to generate rankings for words in the Wordle
+    word list that are found in the 20k list. Set rank = 0 for Wordle list words that aren't in
+    the 20k list.
 
+    """
     t20k5 = []
-
     t20k = read_word_data(GOOGLE_20K_DATA_FILE)
     for t in t20k:
         if len(t[WORD]) == N:
@@ -158,11 +172,19 @@ def main():
 
         if not i: 
             matches = words
+ 
         matches = filter_words(args[1], matches, args[0])
-
         count = len(matches)
-        for i in range(count):
-            print(matches[i][WORD], end=" ")
+
+        """ 
+        The rankings aren't in the file yet
+        sorted_matches = (v for v in sorted(matches, 
+             key = lambda ele: ele[RANK])) #reverse=True
+        """
+
+        if count > 8: count = 8
+        for j in range(count):
+            print(matches[j][WORD], matches[j][EXPECTED], end=" ")
         
         print()
 
@@ -218,11 +240,11 @@ def iterate_and_do():
         od = scratch.Odometer(pattern, BASE)
         for i in range(BASE**N):
             matches = filter_words(pattern, words, word[WORD])
-
+            
             if (matches): 
                 count = len(matches)
                 print(pattern, count)
-
+            
                 if count > 15: count = 15
                 for i in range(count):
                     print(matches[i], end=" ")
@@ -233,8 +255,8 @@ def iterate_and_do():
             od.increment()
 
 
-generate_rankings()
-#main()
+main()
+#generate_rankings()
 #generate_expecteds()
 #iterate_and_do()
 
