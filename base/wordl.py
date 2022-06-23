@@ -4,7 +4,6 @@ Wordl
 Helps you cheat playing Wordle
 
 """
-from curses import keyname
 import math
 from enum import IntEnum
 import scratch
@@ -32,7 +31,7 @@ def generate_pattern(src, trgt):
     """ 
     Given two words like 'women', 'roman' (src, trgt), return the corresponding Wordle "hint" 
     encoded as a list of integers each taking on one of three enum values - hit, miss or other -
-    for each character in the word.  
+    for each character in the word - eg 20021  
     """
     pattern = [Hint.miss] * N
 
@@ -96,6 +95,7 @@ def filter_words(pattern, words, src):
 
     return matches
 
+
 def read_word_data(filename):
     """ 
 
@@ -117,6 +117,7 @@ def read_word_data(filename):
             t = tuple((word, DEFAULT_EXPECTED, rank/(2*10**4)))
             rank += 1
             words.append(t)
+
     else: # WORD_EXPECTED_RANK_VALUES 
         for line in lines:
             t = eval(line)
@@ -140,55 +141,14 @@ def generate_rankings():
 
     twordl = read_word_data(WORDLE_DATA_FILE)
     for t in twordl:
+        # This is performant (for Lists) and is the recommended way to do it.
         result = next((i for i, v in enumerate(t20k5) if v[WORD] == t[WORD]), None)
         if result != None:
             t += ((t20k5[result][RANK]),)
         else:
             t += (0,)
         print(t)
-#-------------------------------------------------------------------------------
 
-def main():
-    """ 
-    Main:
-
-    Usage: wordl <word> <pattern>
-    eg:    wordl ozone 00122
-
-    """
-    print ('\nWelcome to Wordl! You have 6 guesses, \'q\' to quit')
-
-    # User starts out with a guess on Wordle, followed by
-    # inputting the result to the program in the form of
-    # <word> <pattern> like "tacos" and pattern like 00211
-    matches = []
-    words = read_word_data(WORD_EXPECTED_RANK_VALUES)
-    for i in range(6):
-
-        line = input("\nWordl>: ")
-        args = line.split(' ')
-        if args[0][0] == 'q':
-            break
-
-        if not i: 
-            matches = words
- 
-        matches = filter_words(args[1], matches, args[0])
-        count = len(matches)
-        if count > 15: count = 15
-        ranked_by_entropy = list(sorted(matches, 
-             key = lambda ele: ele[EXPECTED], reverse = True))
-
-        ranked_by_frequency = list(sorted(matches, 
-             key = lambda ele: ele[RANK], reverse = True))
-
-        print("\nRankings on Entopy and Frequency:\n"); 
-        for j in range(count):
-            en = ranked_by_entropy[j]
-            fr = ranked_by_frequency[j]
-            print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[RANK]), end=' ')
-            print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[RANK]))
-      
 
 def generate_expecteds():
     """ 
@@ -255,6 +215,70 @@ def iterate_and_do():
             else:
                 print(pattern, end = " ");  print(" not matched!")
             od.increment()
+
+
+def main():
+    """ 
+    Main:
+
+    Usage: wordl <word> <pattern>
+    eg:    wordl ozone 00122
+
+    """
+    print ('\nWelcome to Wordl! You have 6 guesses, \'q\' to quit')
+
+    # User starts out with a guess on Wordle, followed by
+    # inputting the result to the program in the form of
+    # <word> <pattern> like "tacos" and pattern like 00211
+    matches = []
+    words = read_word_data(WORD_EXPECTED_RANK_VALUES)
+    for i in range(6):
+
+        line = input("\nWordl>: ")
+        args = line.split(' ')
+        if args[0][0] == 'q':
+            break
+
+        word = args[0]
+        pattern = args[1]
+
+        result =  next((v for k, v in enumerate(words) if v[WORD] == word), None)
+        if not result: 
+            print(word + ' is not in the dictionary!')
+            break
+        else:
+            expectedbits = result[EXPECTED]
+
+        if not i: 
+            matches = words
+ 
+        matches = filter_words(pattern, matches, args[0])
+        count = len(matches)
+        
+        if count:
+            actualbits = math.log2(count)
+        else: actualbits = 1.0
+
+        if count > 20: count = 20
+        ranked_by_entropy = list(sorted(matches, 
+             key = lambda ele: ele[EXPECTED], reverse = True))
+
+        ranked_by_frequency = list(sorted(matches, 
+             key = lambda ele: ele[RANK], reverse = True))
+
+        print('\n\nWord:\t' + word + '\tPattern: ' + pattern )
+        print('Expected Bits:\t' + str(expectedbits))
+        print('Actual Bits:\t' + str(actualbits))
+    
+        print("\nExpected values and frequencies:\n"); 
+
+        for j in range(count):
+            en = ranked_by_entropy[j]
+            fr = ranked_by_frequency[j]
+            print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[RANK]), end=' ')
+            print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[RANK]))
+      
+
 
 
 main()
