@@ -214,6 +214,23 @@ def iterate_and_do():
                 print(pattern, end = " ");  print(" not matched!")
             od.increment()
 
+def iterate_and_do2():
+    """
+
+    """
+    matches = []
+    words = read_word_data(WORDLE_DATA_FILE)
+    for target in words:
+        for source in words:
+            pattern = [0] * N
+            od = scratch.Odometer(pattern, BASE)
+            for i in range(BASE**N):
+                res = verify_pattern(od.digits, source[WORD], target[WORD] )
+                if res:
+                    print(od.digits, source[WORD], target[WORD])
+                od.increment()
+
+
 def main():
     """ 
     Main:
@@ -279,6 +296,7 @@ def main():
 
 
 
+#iterate_and_do2()
 main()
 #generate_expecteds()
 #iterate_and_do()
