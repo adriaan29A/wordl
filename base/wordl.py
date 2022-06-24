@@ -5,7 +5,6 @@ Helps you cheat playing Wordle
 
 """
 import math
-from enum import IntEnum
 import scratch
 
 N = 5
@@ -21,11 +20,10 @@ GOOGLE_20K_DATA_FILE            = '20k.txt'
 
 DEFAULT_RANK, DEFAULT_EXPECTED  = 0, 0
 
-class Hint(IntEnum):
+class Hint:
     miss    = 0
     hit     = 1
-    other   = 2
-
+    other   = 2     
 
 def generate_pattern(src, trgt):
     """ 
@@ -45,42 +43,41 @@ def generate_pattern(src, trgt):
 
     res = ''
     for j in range(N):
-            res += str(pattern[j].value)
+            res += str(pattern[j])
 
     return res
-
 
 def verify_pattern(pattern, target, source):
     """ 
     Given a pattern like '00120', a src string like 'women' and a target string 
     like 'roman' returns True if the target string matches the pattern given the 
     src string
+
     """
     n= len(pattern)
-    b = True
+    res = True
 
     for i in range(n):
 
-        match int(pattern[i]):
-            case Hint.miss:
-                if source[i] == target[i]:
-                    b = False; break
-                else:
-                    idx = [j for j, c in enumerate(source) if target[i] == c]
-                    if idx:
-                        b = False; break
-            case Hint.hit:
-                if source[i] != target[i]:
-                    b = False; break
-            case Hint.other:
-                if source[i] == target[i]:
-                    b = False; break
-                else:
-                    idx = [j for j, c in enumerate(source) if target[i] == c]
-                    if not idx:
-                        b = False; break              
+        if int(pattern[i]) == Hint.miss:
+            if source[i] == target[i]:
+                res = False; break
+            else:
+                if [j for j, c in enumerate(source) if target[i] == c]:
+                    res = False; break
+        elif int(pattern[i]) ==  Hint.hit:
+            if source[i] != target[i]:
+                res = False; break
 
-    return b
+        elif int(pattern[i]) == Hint.other:
+            if source[i] == target[i]:
+                res = False; break
+            else:
+                if not [j for j, c in enumerate(source) if target[i] == c]:
+                    res = False; break
+
+    return res
+
 
 
 def filter_words(pattern, words, src):
@@ -193,6 +190,7 @@ def iterate_and_do():
     """
     Iterating over all patterns and for each word find all matching words and
     print them out. Some pattern, word combinations have no have no matches     
+
     """
     matches = []
     words = read_word_data(WORDLE_DATA_FILE)
@@ -216,7 +214,6 @@ def iterate_and_do():
                 print(pattern, end = " ");  print(" not matched!")
             od.increment()
 
-
 def main():
     """ 
     Main:
@@ -226,6 +223,7 @@ def main():
 
     """
     print ('\nWelcome to Wordl! You have 6 guesses, \'q\' to quit')
+
 
     # User starts out with a guess on Wordle, followed by
     # inputting the result to the program in the form of
@@ -282,9 +280,10 @@ def main():
 
 
 main()
-#generate_rankings()
 #generate_expecteds()
 #iterate_and_do()
+#generate_rankings()
+
 
 
 

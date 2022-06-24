@@ -16,4 +16,32 @@ class Odometer:
             if i == self.n: 
                 break
 
+    """
+    def verify_pattern(pattern, target, source):
+    n= len(pattern)
+    b = True
 
+    for i in range(n):
+
+        match int(pattern[i]):
+            case Hint.miss:
+                if source[i] == target[i]:
+                    b = False; break
+                else:
+                    idx = [j for j, c in enumerate(source) if target[i] == c]
+                    if idx:
+                        b = False; break
+            case Hint.hit:
+                if source[i] != target[i]:
+                    b = False; break
+            case Hint.other:
+                if source[i] == target[i]:
+                    b = False; break
+                else:
+                    idx = [j for j, c in enumerate(source) if target[i] == c]
+                    if not idx:
+                        b = False; break              
+
+    
+    return b
+"""
