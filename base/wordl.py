@@ -214,6 +214,26 @@ def iterate_and_do():
                 print(pattern, end = " ");  print(" not matched!")
             od.increment()
 
+
+class Odometer:
+
+    def __init__(self, digits, base):
+        self.digits = digits
+        self. n = len(digits)
+        self.base = base
+
+    def increment_and_carry(self, i):
+        self.digits[i] = (self.digits[i] + 1) % self.base
+        return self.digits[i] == 0
+
+    def increment(self):
+        i = 0
+        while self.increment_and_carry(i):
+            i+=1
+            if i == self.n: 
+                break
+
+
 def iterate_and_do2():
     """
 
@@ -240,7 +260,6 @@ def main():
 
     """
     print ('\nWelcome to Wordl! You have 6 guesses, \'q\' to quit')
-
 
     # User starts out with a guess on Wordle, followed by
     # inputting the result to the program in the form of
@@ -294,10 +313,8 @@ def main():
             print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[RANK]))
       
 
-
-
-#iterate_and_do2()
 main()
+#iterate_and_do2()
 #generate_expecteds()
 #iterate_and_do()
 #generate_rankings()
