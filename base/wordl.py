@@ -5,7 +5,6 @@ Helps you cheat playing Wordle
 
 """
 import math
-import scratch
 
 N = 5
 BASE = 3
@@ -197,7 +196,7 @@ def iterate_and_do():
     for word in words:
 
         pattern = [0] * N
-        od = scratch.Odometer(pattern, BASE)
+        od = Odometer(pattern, BASE)
         for i in range(BASE**N):
             matches = filter_words(pattern, words, word[WORD])
             

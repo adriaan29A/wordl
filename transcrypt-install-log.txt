@@ -1,0 +1,65 @@
+Tools and method to get transcrypt compiling wordl.py to wordl.js
+
+Tools:
+
+nvm
+npm
+pip/pypi
+update_alternatives
+transcrypt
+
+
+Note:
+
+adriaan@uhuru:~/Desktop/javascript projects$ which python
+/usr/local/bin/python
+adriaan@uhuru:~/Desktop/javascript projects$ which python3
+/usr/local/bin/python3
+adriaan@uhuru:~/Desktop/javascript projects$ 
+
+
+It is super critical that 'python3' resolve to python3.8 or bash won't start, but transcrypt requires python3.9   
+
+adriaan@uhuru:~/Desktop/javascript projects$ which python
+/usr/local/bin/python
+adriaan@uhuru:~/Desktop/javascript projects$ which python3
+/usr/local/bin/python3
+adriaan@uhuru:~/Desktop/javascript projects$ 
+
+running python 3.9, pip is already installed
+python binaries 3.8 & 3.9 are copied to /usr/local/bin
+adriaan@uhuru:~/Desktop/python projects/env/bin$ sudo update-alternatives --install /usr/local/bin/python3 python3 /usr/bin/python3.8 100
+adriaan@uhuru:~/Desktop/python projects/env/bin$ sudo update-alternatives --install /usr/local/bin/python3 python /usr/bin/python3.9 10
+
+got all the files and symlinks to look like this
+
+adriaan@uhuru:/usr/local/bin$ ls -al
+total 11036
+lrwxrwxrwx  1 root root      25 Jun 25 20:39 python3 -> /etc/alternatives/python3
+-rwxr-xr-x  1 root root 5793336 Jun 25 20:04 python3.10
+-rwxr-xr-x  1 root root 5490448 Jun 25 20:04 python3.8
+...
+
+
+adriaan@uhuru:/usr/bin$ ls -al python*
+lrwxrwxrwx 1 root root       9 Jun 25 15:36 python -> python3.9
+lrwxrwxrwx 1 root root       9 Jun 25 19:25 python3 -> python3.8
+-rwxr-xr-x 1 root root 5793336 Jun 11 09:53 python3.10
+
+adriaan@uhuru:/etc/alternatives$ ls -al python*
+lrwxrwxrwx 1 root root 18 Jun 25 20:39 python -> /usr/bin/python3.9
+lrwxrwxrwx 1 root root 18 Jun 25 20:39 python3 -> /usr/bin/python3.8
+
+>!!!!!!!NO don't pip install transcrypt like this NO !!!!!!!!
+python -m pip install transcrypt
+
+Do this instead...
+python -m transcrypt -b -m -n hello.py
+
+Urls:
+https://www.transcrypt.org/home
+https://www.transcrypt.org/docs/html/installation_use.html#installation
+https://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/
+https://linuxhint.com/update_alternatives_ubuntu/
+https://www.mytechmint.com/how-to-switch-python-version-in-linux/
+
