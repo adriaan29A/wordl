@@ -8,21 +8,23 @@ Helps you cheat playing Wordle
 import sys
 import math
 
+# Odometer - tools
 N = 5
 BASE = 3
 
+# Tuple values 
 WORD = 0
 EXPECTED = 1
-RANK = 2
-COUNTS = 3
+FREQUENCY = 2
 
+# input files
+WORDLE_DATA_FILE                    = 'wd/1297_word_expected_values'
+GOOGLE_330K_WORD_COUNTS             = 'wd/google_330k_word_counts'
 
-WORDLE_DATA_FILE                = 'wd/words_expected'
-WORD_EXPECTED_RANK_VALUES       = 'wd/word_expected_rank_values'
-GOOGLE_20K_DATA_FILE            = 'wd/20k'
-GOOGLE_330K_WORD_COUNTS         = 'wd/google_330k_word_counts'
-COMBINED_SORTED_EXPECTED        = 'wd/combined_sorted_expected'
-DEFAULT_RANK, DEFAULT_EXPECTED  = 0, 0
+# output files
+COMBINED_1297_SORTED_EXPECTED       = 'wd/1297_combined_sorted_expected'
+COMBINED_1297_SORTED_COUNTS         = 'wd/1297_combined_sorted_counts'
+COMBINED_1297                       = 'wd/1297_combined'
 
 class Hint:
     miss    = 0
@@ -96,6 +98,49 @@ def filter_words(pattern, words, src):
 
     return matches
 
+def generate_1297_counts():
+    """
+    Used to generate the COMBINED_SORTED_EXPECTED and COMBINED_SORTED_COUNTS files
+
+"""
+    words330k = read_word_data(GOOGLE_330K_WORD_COUNTS)
+    words1297 = read_word_data(WORDLE_DATA_FILE) 
+    words1297_revised = []
+    words330k_5 = []
+
+    # Get 5 letter words & counts from the 330k corpus
+    for w in words330k:
+        if len(w[WORD]) == 5:
+            t = (w[WORD], w[1])
+            words330k_5.append(t)
+    
+    # Get the (5 letter) words & ranks from the reference wordl data and
+    # add it to the 300K data. 1297 * 330K == expensive operation
+    for w in words1297:
+        t = ()
+        result = next((i for i, v in enumerate(words330k_5) if v[WORD] == w[WORD]), None)
+        if result != None:
+            #w += (words330k_5[result][1],)
+            t = (w[WORD], w[EXPECTED], words330k_5[result][1])
+        else:
+            t = (w[WORD], w[EXPECTED], 0)
+
+        words1297_revised.append(t)
+
+    combined_1297_sorted_expected = list(sorted(words1297_revised, key = lambda ele:[EXPECTED], reverse = True))
+    combined_1297_sorted_counts = list(sorted(words1297_revised, key = lambda ele: ele[FREQUENCY], reverse = True))
+
+    max = 1226734006
+    for w in combined_1297_sorted_counts:
+        normval =  round(w[2] / max, 6)
+        t = (w[WORD], w[EXPECTED], normval)
+        print(t, file = sys.stderr)
+
+    for w in combined_1297_sorted_expected:
+        normval =  round(w[2] / max, 6)
+        t = (w[WORD], w[EXPECTED], normval)
+        print(t)
+
 
 def read_word_data(filename):
     """ 
@@ -109,51 +154,27 @@ def read_word_data(filename):
     if filename == WORDLE_DATA_FILE:
         for line in lines:
             s = line.split(' ')
-            t = tuple(((s[WORD], float(s[EXPECTED]))))
+            t = tuple(((s[WORD], int(s[EXPECTED]))))
             words.append(t)
 
-    elif filename == GOOGLE_20K_DATA_FILE:
-        rank = 0
-        for word in lines:
-            t = tuple((word, DEFAULT_EXPECTED, rank/(2*10**4)))
-            rank += 1
+    elif filename == GOOGLE_330K_WORD_COUNTS:
+        for line in lines:
+            s = line.split('\t')
+            t = tuple((s[WORD], int(s[1])))
             words.append(t)
 
-    elif filename == WORD_EXPECTED_RANK_VALUES:
+    elif filename == COMBINED_1297_SORTED_EXPECTED:
         for line in lines:
             t = eval(line)
             words.append(t)
 
-    elif filename == COMBINED_SORTED_EXPECTED:
+    elif filename == COMBINED_1297:
         for line in lines:
             t = eval(line)
             words.append(t)
 
     return words
 
-def generate_rankings():
-    """
-    Many of the words in Wordle are junk words even if they yield valuable Shannon entropy
-    values. Use the Google 20k ordered word list to generate rankings for words in the Wordle
-    word list that are found in the 20k list. Set rank = 0 for Wordle list words that aren't in
-    the 20k list.
-
-    """
-    t20k5 = []
-    t20k = read_word_data(GOOGLE_20K_DATA_FILE)
-    for t in t20k:
-        if len(t[WORD]) == N:
-            t20k5.append(t)
-
-    twordl = read_word_data(WORDLE_DATA_FILE)
-    for t in twordl:
-        # This is performant (for Lists) and is the recommended way to do it.
-        result = next((i for i, v in enumerate(t20k5) if v[WORD] == t[WORD]), None)
-        if result != None:
-            t += ((t20k5[result][RANK]),)
-        else:
-            t += (0,)
-        print(t)
 
 
 def generate_expecteds():
@@ -271,11 +292,10 @@ def main():
     eg:    wordl ozone 00122
 
     """
-    # User starts out with a guess on Wordle, followed by
-    # inputting the result to the program in the form of
+    # User starts out with a guess on Wordle, followed by inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
     matches = []
-    words = read_word_data(COMBINED_SORTED_EXPECTED)
+    words = read_word_data(COMBINED_1297)
     for i in range(6):
 
         line = input("\nWordl>: ")
@@ -308,7 +328,7 @@ def main():
              key = lambda ele: ele[EXPECTED], reverse = True))
 
         ranked_by_frequency = list(sorted(matches, 
-             key = lambda ele: ele[COUNTS], reverse = True))
+             key = lambda ele: ele[FREQUENCY], reverse = True))
 
         print('\n\nWord:\t' + word + '\tPattern: ' + pattern )
         print('Expected Bits:\t' + str(expectedbits))
@@ -319,66 +339,17 @@ def main():
         for j in range(count):
             en = ranked_by_entropy[j]
             fr = ranked_by_frequency[j]
-            print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[RANK]), end=' ')
-            print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[COUNTS]))
+            print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[FREQUENCY]), end=' ')
+            print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[FREQUENCY]))
       
-
-
-def generate_counts():
-    """
-    Mish Mash of stuff used to generate COMBINED_SORTED_EXPECTED which is sorted
-    based on expecteds. COMBINED_SORTED_COUNTS is sorted based on counts from 
-    GOOGLE_330K_WORD_COUNTS).
-
-"""
-    words330k = read_word_data(GOOGLE_330K_WORD_COUNTS)
-    words1297 = read_word_data(WORD_EXPECTED_RANK_VALUES)
-    words330k_5 = []
-    words1297_sorted = []
-    words1297_revised = []
-
-    for w in words330k:
-        if len(w[WORD]) == 5:
-            t = (w[WORD], w[1])
-            words330k_5.append(t)
-    
-    for w in words1297:
-        result = next((i for i, v in enumerate(words330k_5) if v[WORD] == w[WORD]), None)
-        if result != None:
-            w += ((words330k_5[result][1]),)
-        else:
-            w += (0,)
-
-        print(w, file = sys.stderr)
-        words1297_revised.append(w)
-
-    
-    for w in words1297:
-        result = next((i for i, v in enumerate(words330k_5) if v[WORD] == w[WORD]), None)
-        if (result == None):
-            print(w[WORD], )
-
-    """
-    and used command line like this to create COMBINED_SORTED_EXPECTED
-    $> python ./wordl.py 1 > result.txt and uses counts fr
-
-"""
-
-    combined_sorted_expected = read_word_data(COMBINED_SORTED_EXPECTED)
-    combined_sorted_counts = list(sorted(combined_sorted_expected, key = lambda ele: ele[COUNTS], reverse = True))
-
-    for w in combined_sorted_counts:
-        print (w)
-
-
-#generate_counts()
-
 main()
 
-#iterate_and_do2()
+#generate_1297_counts()
 #generate_expecteds()
+#iterate_and_do2()
 #iterate_and_do()
-#generate_rankings()
+
+
 
 
 
