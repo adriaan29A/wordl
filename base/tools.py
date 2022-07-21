@@ -12,13 +12,10 @@ FREQUENCY   = 1
 COUNT       = 2
 
 # input files
-WORDLE_DATA_FILE                    = 'wd/1297_word_expected_values'
-GOOGLE_330K_WORD_COUNTS             = 'wd/google_330k_word_counts'
-
-# output files
-COMBINED_1297_SORTED_EXPECTED       = 'wd/1297_combined_sorted_expected'
-COMBINED_1297_SORTED_COUNTS         = 'wd/1297_combined_sorted_counts'
-COMBINED_1297                       = 'wd/1297_combined'
+WORDLE_DATA                 = 'wd/wordle_data'
+WORDLE_ORIGINAL_WORDS       = 'wd/wordle_original_words'
+WORDLE_EXPECTED             = 'wd/wordle_expected'
+GOOGLE_WORD_COUNTS          = 'wd/google_word_counts'
 
 class Hint:
     miss    = 0
@@ -101,27 +98,26 @@ def read_word_data(filename):
          lines = f.read().splitlines()
          f.close
 
-    if filename == WORDLE_DATA_FILE:
+    if filename == WORDLE_DATA:
+        for line in lines:
+            t = eval(line)
+            words.append(t)
+
+    if filename == WORDLE_EXPECTED :
         for line in lines:
             s = line.split(' ')
             t = tuple(((s[WORD], float(s[EXPECTED]))))
             words.append(t)
 
-    elif filename == GOOGLE_330K_WORD_COUNTS:
+    elif filename == GOOGLE_WORD_COUNTS:
         for line in lines:
             s = line.split('\t')
             t = tuple((s[WORD], int(s[1])))
             words.append(t)
 
-    elif filename == COMBINED_1297_SORTED_EXPECTED:
-        for line in lines:
-            t = eval(line)
-            words.append(t)
-
-    elif filename == COMBINED_1297:
-        for line in lines:
-            t = eval(line)
-            words.append(t)
+    elif filename == WORDLE_ORIGINAL_WORDS:
+        for word in lines:
+            words.append(word)
 
     return words
 
@@ -131,7 +127,7 @@ def generate_expecteds():
     Pre-compute expected values using Shannon's rule = sum(p(i) * log(1/p(i)))
     grep -E '^[[:alpha:]]{5}$'
     """
-    words = read_word_data(WORDLE_DATA_FILE)
+    words = read_word_data(WORDLE_ORIGINAL_WORDS)
     n = len(words)
     for i in range(n):
         
@@ -166,25 +162,24 @@ def generate_expecteds():
     print('{0:s} {1:2.5f}'.format(words[i][0], s))
 
 
-def generate_1297_counts():
+def generate_entropies():
     """
 
 """
-    words330k = read_word_data(GOOGLE_330K_WORD_COUNTS)
-    words1297 = read_word_data(WORDLE_DATA_FILE) 
-    words1297_revised = []
-    words330k_5 = []
+    google_words = read_word_data(GOOGLE_WORD_COUNTS)
+    wordle_words = read_word_data(WORDLE_EXPECTED) 
+    google_5 = []; wordle_revised = [];
 
     # Get 5 letter words & counts from the 330k corpus
-    for w in words330k:
+    for w in google_words:
         if len(w[WORD]) == 5:
             t = (w[WORD], w[1])
-            words330k_5.append(t)
+            google_5.append(t)
     
     # O(N*M) operation.
     total_counts = 63150283289
-    for w in words1297:
-        t = next((v for i, v in enumerate(words330k_5) if v[WORD] == w[WORD]), None)
+    for w in wordle_words:
+        t = next((v for i, v in enumerate(google_5) if v[WORD] == w[WORD]), None)
         if t != None:
             f = t[FREQUENCY]
             s = round((f / total_counts * math.log2(total_counts/ f)), 6) 
@@ -192,7 +187,7 @@ def generate_1297_counts():
         else:
             w += (0,)
         print(w)
-        words1297_revised.append(w)
+        wordle_revised.append(w)
         # total_counts += t[COUNT]
 
 
@@ -214,12 +209,12 @@ class Odometer:
             if i == self.n: 
                 break
 
-def iterate_and_do2():
+def iterate_and_do():
     """
     Test function
     """
     matches = []
-    words = read_word_data(WORDLE_DATA_FILE)
+    words = read_word_data(WORDLE_DATA)
     for target in words:
         for source in words:
             pattern = [0] * N
@@ -231,3 +226,8 @@ def iterate_and_do2():
                 od.increment()
 
 
+def doSort():
+    data = read_word_data(WORDLE_DATA)
+    sorted_data = list(sorted(data, key = lambda ele: ele[COUNT], reverse = True))
+    for wd in sorted_data:
+        print(wd)

@@ -5,8 +5,8 @@ Helps you cheat playing Wordle
 
 
 """
-from tools import Hint, read_word_data, filter_words, generate_1297_counts, COMBINED_1297, WORD, EXPECTED, COUNT
 import math
+from tools import Hint, read_word_data, filter_words, WORDLE_DATA, WORD, EXPECTED, COUNT
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     # User starts out with a guess on Wordle, followed by inputting the result to the program in the form of
     # <word> <pattern> like "tacos" and pattern like 00211
     matches = []
-    words = read_word_data(COMBINED_1297)
+    words = read_word_data(WORDLE_DATA)
     for i in range(6):
 
         line = input("\nWordl>: ")
@@ -67,8 +67,9 @@ def main():
             print('{0:s}  {1:1.2f}  {2:1.2f}   '.format(en[WORD], en[EXPECTED], en[COUNT]), end=' ')
             print('{0:s}  {1:1.2f}  {2:1.2f}'.format(fr[WORD], fr[EXPECTED], fr[COUNT]))
       
-#main()
-generate_1297_counts()
+main()
+#doSort()
+#generate_entropies()
 #generate_expecteds()
 #iterate_and_do2()
 #iterate_and_do()
